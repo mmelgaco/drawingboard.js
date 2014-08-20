@@ -319,7 +319,7 @@ DrawingBoard.Board.prototype = {
 			ctx.globalCompositeOperation = "source-over";
 			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.width);
             if(resize) {
-                ctx.drawImage(img, 0, 0, this.$el.width(), this.$el.height());
+                ctx.drawImage(img, 0, 0, ctx.canvas.width, ctx.canvas.height);
             }else{
                 ctx.drawImage(img, 0, 0);
             }
