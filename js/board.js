@@ -594,7 +594,7 @@ DrawingBoard.Board.prototype = {
 
     drawnow: function(midx, midy, oldx, oldy, oldMidx, oldMidy) {
 
-        console.log('drawing: '+midx +','+ midy +' - '+ oldx +','+ oldy +' - '+ oldMidx +','+  oldMidy);
+        //console.log('drawing: '+midx +','+ midy +' - '+ oldx +','+ oldy +' - '+ oldMidx +','+  oldMidy);
         this.ctx.beginPath();
         this.ctx.moveTo(midx, midy);
         this.ctx.quadraticCurveTo(oldx, oldy, oldMidx, oldMidy);
