@@ -276,7 +276,8 @@ DrawingBoard.Board.prototype = {
 	 * resize values depend on the `enlargeYourContainer` option
 	 */
 
-	reset: function(opts) {
+	reset: function(opts,silent) {
+        silent = silent || false;
 		opts = $.extend({
 			color: this.opts.color,
 			size: this.opts.size,
@@ -302,7 +303,7 @@ DrawingBoard.Board.prototype = {
 
 		this.blankCanvas = this.getImg();
 
-		this.ev.trigger('board:reset', opts);
+        if(!silent) this.ev.trigger('board:reset', opts);
 	},
 
 	resetBackground: function(background, historize) {
@@ -445,7 +446,7 @@ DrawingBoard.Board.prototype = {
 			this.history.position = this.history.values.length+1;
 		}
 		this.history.values.push(this.getImg());
-		this.ev.trigger('historyNavigation', this.history.position);
+		this.ev.trigger('savehistory', this.history.position);
 	},
 
 	_goThroughHistory: function(goForth) {
@@ -460,6 +461,11 @@ DrawingBoard.Board.prototype = {
 		this.ev.trigger('historyNavigation', pos);
 		this.saveWebStorage();
 	},
+
+    goToHistoryPosition: function(pos){
+        this.history.position = pos;
+        this.setImg(this.history.values[pos-1]);
+    },
 
 	goBackInHistory: function() {
 		this._goThroughHistory(false);
@@ -601,6 +607,10 @@ DrawingBoard.Board.prototype = {
 		return this.mode || "pencil";
 	},
 
+    setSize: function(size){
+        this.ctx.lineWidth = size;
+    },
+
 	setColor: function(color) {
 		var that = this;
 		color = color || this.color;
@@ -621,7 +631,9 @@ DrawingBoard.Board.prototype = {
 	/**
 	 * Fills an area with the current stroke color.
 	 */
-	fill: function(e) {
+	fill: function(e, silent) {
+        silent = silent || false;
+
 		if (this.getImg() === this.blankCanvas) {
 			this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.width);
 			this.ctx.fillStyle = this.color;
@@ -674,6 +686,8 @@ DrawingBoard.Board.prototype = {
 		}
 
 		this.ctx.putImageData(img, 0, 0);
+
+        if (!silent) this.ev.trigger('board:fillnow', e);
 	},
 
 
@@ -739,12 +753,24 @@ DrawingBoard.Board.prototype = {
 			this.ctx.quadraticCurveTo(this.coords.old.x, this.coords.old.y, this.coords.oldMid.x, this.coords.oldMid.y);
 			this.ctx.stroke();
 
+            this.ev.trigger('board:drawnow', currentMid.x, currentMid.y, this.coords.old.x, this.coords.old.y, this.coords.oldMid.x, this.coords.oldMid.y);
+
 			this.coords.old = this.coords.current;
 			this.coords.oldMid = currentMid;
 		}
 
 		if (window.requestAnimationFrame) requestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
 	},
+
+    drawnow: function(midx, midy, oldx, oldy, oldMidx, oldMidy) {
+
+        console.log('drawing: '+midx +','+ midy +' - '+ oldx +','+ oldy +' - '+ oldMidx +','+  oldMidy);
+        this.ctx.beginPath();
+        this.ctx.moveTo(midx, midy);
+        this.ctx.quadraticCurveTo(oldx, oldy, oldMidx, oldMidy);
+        this.ctx.stroke();
+
+    },
 
 	_onInputStart: function(e, coords) {
 		this.coords.current = this.coords.old = coords;
