@@ -433,8 +433,10 @@ DrawingBoard.Board.prototype = {
 			if (newMode === "filler")
 				this.ev.bind('board:startDrawing', $.proxy(this.fill, this));
 
-            if (newMode === "text")
+            if (newMode === "text") {
                 this.ev.bind('board:startDrawing', $.proxy(this.text, this));
+                this.setSize(14);//default size for text
+            }
 		}
 		this.mode = newMode;
 		if (!silent)
@@ -447,6 +449,7 @@ DrawingBoard.Board.prototype = {
 
     setSize: function(size){
         this.ctx.lineWidth = size;
+        this.dom.$controls.find('.drawing-board-control-size-range-input').val(size);
     },
 
 	setColor: function(color) {
@@ -473,7 +476,7 @@ DrawingBoard.Board.prototype = {
     },
 
     textwrite: function(x, y, text){
-        this.ctx.font = '14px Verdana';
+        this.ctx.font = this.ctx.lineWidth+'px Verdana';
         this.ctx.fillStyle = this.color;
         this.ctx.fillText(text, x, y);
         this.ctx.save();
