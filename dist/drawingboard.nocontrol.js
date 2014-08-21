@@ -1,4 +1,4 @@
-/* drawingboard.js v0.4.8 - https://github.com/Leimi/drawingboard.js
+/* drawingboard.js v0.4.9 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2014 Emmanuel Pelletier
 * Licensed MIT */
 window.DrawingBoard = typeof DrawingBoard !== "undefined" ? DrawingBoard : {};
@@ -585,6 +585,7 @@ DrawingBoard.Board.prototype = {
 		silent = silent || false;
 		newMode = newMode || 'pencil';
 
+        this.ev.unbind('board:startDrawing', $.proxy(this.text, this));
 		this.ev.unbind('board:startDrawing', $.proxy(this.fill, this));
 
 		if (this.opts.eraserColor === "transparent")
@@ -601,6 +602,9 @@ DrawingBoard.Board.prototype = {
 
 			if (newMode === "filler")
 				this.ev.bind('board:startDrawing', $.proxy(this.fill, this));
+            
+            if (newMode === "text")
+                this.ev.bind('board:startDrawing', $.proxy(this.text, this));
 		}
 		this.mode = newMode;
 		if (!silent)
@@ -631,6 +635,18 @@ DrawingBoard.Board.prototype = {
 		} else
 			this.ctx.strokeStyle = this.color;
 	},
+
+    text: function(e, silent){
+
+        var text = prompt('Digite o texto: ');
+
+        this.ctx.font = '14px Verdana';
+        this.ctx.fillStyle = "#000000";
+        this.ctx.fillText(text, e.coords.x, e.coords.y);
+        this.ctx.save();
+
+
+    },
 
 	/**
 	 * Fills an area with the current stroke color.
@@ -750,7 +766,7 @@ DrawingBoard.Board.prototype = {
 			this.dom.$cursor.addClass('drawing-board-utils-hidden');
 		}
 
-		if (this.isDrawing) {
+        if ((this.getMode()=='pencil' || this.getMode()=='eraser') && this.isDrawing) {
 			var currentMid = this._getMidInputCoords(this.coords.current);
 			this.ctx.beginPath();
 			this.ctx.moveTo(currentMid.x, currentMid.y);
