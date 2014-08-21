@@ -467,14 +467,14 @@ DrawingBoard.Board.prototype = {
 	},
 
     text: function(e, silent){
-        var text = prompt('Digite o texto: ');
+        var text = prompt('Digite o texto: ') || '';
         this.textwrite(e.coords.x, e.coords.y, text);
         this.ev.trigger('board:textnow', e.coords.x, e.coords.y, text);
     },
 
     textwrite: function(x, y, text){
         this.ctx.font = '14px Verdana';
-        this.ctx.fillStyle = "#000000";
+        this.ctx.fillStyle = this.color;
         this.ctx.fillText(text, x, y);
         this.ctx.save();
     },

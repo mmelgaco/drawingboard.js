@@ -1,4 +1,4 @@
-/* drawingboard.js v0.4.10 - https://github.com/Leimi/drawingboard.js
+/* drawingboard.js v0.4.11 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2014 Emmanuel Pelletier
 * Licensed MIT */
 window.DrawingBoard = typeof DrawingBoard !== "undefined" ? DrawingBoard : {};
@@ -637,14 +637,14 @@ DrawingBoard.Board.prototype = {
 	},
 
     text: function(e, silent){
-        var text = prompt('Digite o texto: ');
+        var text = prompt('Digite o texto: ') || '';
         this.textwrite(e.coords.x, e.coords.y, text);
         this.ev.trigger('board:textnow', e.coords.x, e.coords.y, text);
     },
 
     textwrite: function(x, y, text){
         this.ctx.font = '14px Verdana';
-        this.ctx.fillStyle = "#000000";
+        this.ctx.fillStyle = this.color;
         this.ctx.fillText(text, x, y);
         this.ctx.save();
     },
