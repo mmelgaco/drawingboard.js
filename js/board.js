@@ -468,7 +468,7 @@ DrawingBoard.Board.prototype = {
 
     text: function(e, silent){
         var text = prompt('Digite o texto: ');
-        textwrite(e.coords.x, e.coords.y, text);
+        this.textwrite(e.coords.x, e.coords.y, text);
         this.ev.trigger('board:textnow', e.coords.x, e.coords.y, text);
     },
 
