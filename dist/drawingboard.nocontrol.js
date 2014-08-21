@@ -602,7 +602,7 @@ DrawingBoard.Board.prototype = {
 
 			if (newMode === "filler")
 				this.ev.bind('board:startDrawing', $.proxy(this.fill, this));
-            
+
             if (newMode === "text")
                 this.ev.bind('board:startDrawing', $.proxy(this.text, this));
 		}
@@ -637,15 +637,16 @@ DrawingBoard.Board.prototype = {
 	},
 
     text: function(e, silent){
-
         var text = prompt('Digite o texto: ');
+        textwrite(e.coords.x, e.coords.y, text);
+        this.ev.trigger('board:textnow', e.coords.x, e.coords.y, text);
+    },
 
+    textwrite: function(x, y, text){
         this.ctx.font = '14px Verdana';
         this.ctx.fillStyle = "#000000";
-        this.ctx.fillText(text, e.coords.x, e.coords.y);
+        this.ctx.fillText(text, x, y);
         this.ctx.save();
-
-
     },
 
 	/**
