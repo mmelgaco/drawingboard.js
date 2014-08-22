@@ -1,4 +1,4 @@
-/* drawingboard.js v0.4.12 - https://github.com/Leimi/drawingboard.js
+/* drawingboard.js v0.4.13 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2014 Emmanuel Pelletier
 * Licensed MIT */
 window.DrawingBoard = typeof DrawingBoard !== "undefined" ? DrawingBoard : {};
@@ -652,10 +652,24 @@ DrawingBoard.Board.prototype = {
         this.ctx.save();
     },
 
-	/**
-	 * Fills an area with the current stroke color.
-	 */
-	fill: function(e, silent) {
+    toggleControls: function(show){
+        this.dom.$controls.toggleClass('drawing-board-controls-hidden', show);
+    },
+
+    isDisabled: function(){
+        return this.dom.$controls.hasClass('drawing-board-controls-hidden');
+    },
+
+    fill: function(e, silent) {
+        if(!this.isDisabled()) {
+            this.fillnow(e, silent);
+        }
+    },
+
+    /**
+     * Fills an area with the current stroke color.
+     */
+    fillnow: function(e, silent) {
         silent = silent || false;
 
 		if (this.getImg() === this.blankCanvas) {
@@ -770,7 +784,7 @@ DrawingBoard.Board.prototype = {
 			this.dom.$cursor.addClass('drawing-board-utils-hidden');
 		}
 
-        if ((this.getMode()=='pencil' || this.getMode()=='eraser') && this.isDrawing) {
+        if (!this.isDisabled() && (this.getMode()=='pencil' || this.getMode()=='eraser') && this.isDrawing) {
 			var currentMid = this._getMidInputCoords(this.coords.current);
 			this.ctx.beginPath();
 			this.ctx.moveTo(currentMid.x, currentMid.y);
