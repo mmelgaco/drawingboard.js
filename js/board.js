@@ -116,7 +116,7 @@ DrawingBoard.Board.prototype = {
 			background: false
 		}, opts);
 
-		this.setMode('pencil');
+		this.setMode('pencil', silent);
 
 		if (opts.background) this.resetBackground(this.opts.background, false);
 
