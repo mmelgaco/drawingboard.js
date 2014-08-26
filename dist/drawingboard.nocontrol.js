@@ -1,4 +1,4 @@
-/* drawingboard.js v0.4.14 - https://github.com/Leimi/drawingboard.js
+/* drawingboard.js v0.4.15 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2014 Emmanuel Pelletier
 * Licensed MIT */
 window.DrawingBoard = typeof DrawingBoard !== "undefined" ? DrawingBoard : {};
@@ -288,7 +288,7 @@ DrawingBoard.Board.prototype = {
 
 		this.setMode('pencil', silent);
 
-		if (opts.background) this.resetBackground(this.opts.background, false);
+		if (opts.background) this.resetBackground(this.opts.background, false, silent);
 
 		if (opts.color) this.setColor(opts.color);
 		if (opts.size) this.ctx.lineWidth = opts.size;
@@ -301,17 +301,17 @@ DrawingBoard.Board.prototype = {
 
 		if (opts.history) this.saveHistory();
 
-		this.blankCanvas = this.getImg(); 
+		this.blankCanvas = this.getImg();
 
         if(!silent) this.ev.trigger('board:reset', opts);
 	},
 
-	resetBackground: function(background, historize) {
+	resetBackground: function(background, historize, silent) {
 		background = background || this.opts.background;
 		historize = typeof historize !== "undefined" ? historize : true;
 		var bgIsColor = DrawingBoard.Utils.isColor(background);
 		var prevMode = this.getMode();
-		this.setMode('pencil');
+		this.setMode('pencil', silent);
 		this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.width);
 		if (bgIsColor) {
 			this.ctx.fillStyle = background;

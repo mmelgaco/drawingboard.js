@@ -118,7 +118,7 @@ DrawingBoard.Board.prototype = {
 
 		this.setMode('pencil', silent);
 
-		if (opts.background) this.resetBackground(this.opts.background, false);
+		if (opts.background) this.resetBackground(this.opts.background, false, silent);
 
 		if (opts.color) this.setColor(opts.color);
 		if (opts.size) this.ctx.lineWidth = opts.size;
@@ -136,12 +136,12 @@ DrawingBoard.Board.prototype = {
         if(!silent) this.ev.trigger('board:reset', opts);
 	},
 
-	resetBackground: function(background, historize) {
+	resetBackground: function(background, historize, silent) {
 		background = background || this.opts.background;
 		historize = typeof historize !== "undefined" ? historize : true;
 		var bgIsColor = DrawingBoard.Utils.isColor(background);
 		var prevMode = this.getMode();
-		this.setMode('pencil');
+		this.setMode('pencil', silent);
 		this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.width);
 		if (bgIsColor) {
 			this.ctx.fillStyle = background;
