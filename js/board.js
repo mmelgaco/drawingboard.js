@@ -325,6 +325,7 @@ DrawingBoard.Board.prototype = {
             }
 			ctx.globalCompositeOperation = oldGCO;
 		};
+        img.crossOrigin = 'Anonymous';
 		img.src = src;
 	},
 

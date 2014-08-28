@@ -1,4 +1,4 @@
-/* drawingboard.js v0.4.15 - https://github.com/Leimi/drawingboard.js
+/* drawingboard.js v0.4.16 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2014 Emmanuel Pelletier
 * Licensed MIT */
 window.DrawingBoard = typeof DrawingBoard !== "undefined" ? DrawingBoard : {};
@@ -495,6 +495,7 @@ DrawingBoard.Board.prototype = {
             }
 			ctx.globalCompositeOperation = oldGCO;
 		};
+        img.crossOrigin = 'Anonymous';
 		img.src = src;
 	},
 
