@@ -148,7 +148,7 @@ DrawingBoard.Board.prototype = {
 			this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 		} else if (background)
 			this.setImg(background);
-		this.setMode(prevMode);
+		this.setMode(prevMode, silent);
 		if (historize) this.saveHistory();
 	},
 

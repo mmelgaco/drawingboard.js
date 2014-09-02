@@ -1,4 +1,4 @@
-/* drawingboard.js v0.4.16 - https://github.com/Leimi/drawingboard.js
+/* drawingboard.js v0.4.17 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2014 Emmanuel Pelletier
 * Licensed MIT */
 window.DrawingBoard = typeof DrawingBoard !== "undefined" ? DrawingBoard : {};
@@ -318,7 +318,7 @@ DrawingBoard.Board.prototype = {
 			this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 		} else if (background)
 			this.setImg(background);
-		this.setMode(prevMode);
+		this.setMode(prevMode, silent);
 		if (historize) this.saveHistory();
 	},
 
