@@ -25,7 +25,7 @@ DrawingBoard.Board = function(id, opts) {
 	if (!this.$el.length)
 		return false;
 
-	var tpl = '<div class="drawing-board-canvas-wrapper"></canvas><canvas class="drawing-board-canvas"></canvas><div class="drawing-board-cursor drawing-board-utils-hidden"></div></div>';
+	var tpl = '<div class="drawing-board-canvas-wrapper"></canvas><canvas class="drawing-board-canvas"></canvas><canvas id="canvas2" width="698" height="359" class="drawing-board-canvas"><div class="drawing-board-cursor drawing-board-utils-hidden"></div></div>';
 	if (this.opts.controlsPosition.indexOf("bottom") > -1) tpl += '<div class="drawing-board-controls"></div>';
 	else tpl = '<div class="drawing-board-controls"></div>' + tpl;
 
@@ -33,6 +33,7 @@ DrawingBoard.Board = function(id, opts) {
 	this.dom = {
 		$canvasWrapper: this.$el.find('.drawing-board-canvas-wrapper'),
 		$canvas: this.$el.find('.drawing-board-canvas'),
+        $canvas2: this.$el.find('#canvas2'),
 		$cursor: this.$el.find('.drawing-board-cursor'),
 		$controls: this.$el.find('.drawing-board-controls')
 	};
@@ -47,6 +48,12 @@ DrawingBoard.Board = function(id, opts) {
 	this.canvas = this.dom.$canvas.get(0);
 	this.ctx = this.canvas && this.canvas.getContext && this.canvas.getContext('2d') ? this.canvas.getContext('2d') : null;
 	this.color = this.opts.color;
+
+    this.canvas2 = this.dom.$canvas2.get(0);
+    this.ctx2 = this.canvas2 && this.canvas2.getContext && this.canvas2.getContext('2d') ? this.canvas2.getContext('2d') : null;
+    this.startX;
+    this.startY;
+    this.isDown = false;
 
 	if (!this.ctx) {
 		if (this.opts.errorMessage)
@@ -198,6 +205,12 @@ DrawingBoard.Board.prototype = {
 
 		this.canvas.width = canvasWidth;
 		this.canvas.height = canvasHeight;
+
+        this.dom.$canvas2.css('width', canvasWidth + 'px');
+        this.dom.$canvas2.css('height', canvasHeight + 'px');
+
+        this.canvas2.width = canvasWidth;
+        this.canvas2.height = canvasHeight;
 	},
 
 
@@ -641,10 +654,42 @@ DrawingBoard.Board.prototype = {
 
     },
 
+    drawOval: function(x, y, commit, silent){
+        silent = silent || false;
+
+        this.ctx2.clearRect(0, 0, this.canvas2.width, this.canvas2.height);
+        var currentCtx = this.ctx2;
+        if(commit){
+            currentCtx = this.ctx;
+        }
+
+        this.drawOvalNow(currentCtx,x,y,this.startX,this.startY);
+
+        if (!silent && commit) this.ev.trigger('board:drawOval', x,y,this.startX,this.startY);
+    },
+
+    drawOvalNow: function(currentCtx,x,y,startX,startY){
+
+        if(!currentCtx) currentCtx = this.ctx;
+
+        currentCtx.beginPath();
+        currentCtx.moveTo(startX, startY + (y - startY) / 2);
+        currentCtx.bezierCurveTo(startX, startY, x, startY, x, startY + (y - startY) / 2);
+        currentCtx.bezierCurveTo(x, y, startX, y, startX, startY + (y - startY) / 2);
+        currentCtx.closePath();
+        currentCtx.stroke();
+
+    },
+
 	_onInputStart: function(e, coords) {
 		this.coords.current = this.coords.old = coords;
 		this.coords.oldMid = this._getMidInputCoords(coords);
 		this.isDrawing = true;
+
+        //elipse
+        this.startX = coords.x;
+        this.startY = coords.y;
+        this.isDown = true;
 
 		if (!window.requestAnimationFrame) this.draw();
 
@@ -657,6 +702,13 @@ DrawingBoard.Board.prototype = {
 		this.coords.current = coords;
 		this.ev.trigger('board:drawing', {e: e, coords: coords});
 
+        //elipse
+        if (this.getMode()=='elipse' && !this.isDown) {
+            return;
+        } else if (this.getMode()=='elipse' && this.isDown) {
+            this.drawOval(coords.x, coords.y, false);
+        }
+
 		if (!window.requestAnimationFrame) this.draw();
 
 		e.stopPropagation();
@@ -664,6 +716,17 @@ DrawingBoard.Board.prototype = {
 	},
 
 	_onInputStop: function(e, coords) {
+
+        //elipse
+        if (this.getMode()=='elipse' && !this.isDown) {
+            return;
+        } else if (this.getMode()=='elipse' && this.isDown) {
+            this.drawOval(coords.x, coords.y, true);
+        }
+        e.preventDefault();
+        e.stopPropagation();
+        this.isDown = false;
+
 		if (this.isDrawing && (!e.touches || e.touches.length === 0)) {
 			this.isDrawing = false;
 
