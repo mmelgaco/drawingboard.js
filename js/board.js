@@ -337,6 +337,10 @@ DrawingBoard.Board.prototype = {
                 ctx.drawImage(img, 0, 0);
             }
 			ctx.globalCompositeOperation = oldGCO;
+
+            //save the image in the history
+            obj.saveWebStorage();
+            obj.saveHistory();
 		};
         img.crossOrigin = 'Anonymous';
 		img.src = src;
