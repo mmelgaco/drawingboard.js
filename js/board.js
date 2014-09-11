@@ -328,6 +328,7 @@ DrawingBoard.Board.prototype = {
 		var ctx = this.ctx;
 		var img = new Image();
 		var oldGCO = ctx.globalCompositeOperation;
+        var obj = this;
 		img.onload = function() {
 			ctx.globalCompositeOperation = "source-over";
 			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.width);

@@ -1,4 +1,4 @@
-/* drawingboard.js v0.4.19 - https://github.com/Leimi/drawingboard.js
+/* drawingboard.js v0.4.20 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2014 Emmanuel Pelletier
 * Licensed MIT */
 window.DrawingBoard = typeof DrawingBoard !== "undefined" ? DrawingBoard : {};
@@ -498,6 +498,7 @@ DrawingBoard.Board.prototype = {
 		var ctx = this.ctx;
 		var img = new Image();
 		var oldGCO = ctx.globalCompositeOperation;
+        var obj = this;
 		img.onload = function() {
 			ctx.globalCompositeOperation = "source-over";
 			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.width);
