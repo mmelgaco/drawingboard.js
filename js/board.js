@@ -489,6 +489,7 @@ DrawingBoard.Board.prototype = {
 	},
 
     text: function(e, silent){
+        if(this.isDisabled()) return;
         var text = prompt('Digite o texto: ') || '';
         this.textwrite(e.coords.x, e.coords.y, text);
         this.ev.trigger('board:textnow', e.coords.x, e.coords.y, text);
@@ -660,6 +661,8 @@ DrawingBoard.Board.prototype = {
     },
 
     drawOval: function(x, y, commit, silent){
+        if(this.isDisabled()) return;
+
         silent = silent || false;
 
         this.ctx2.clearRect(0, 0, this.canvas2.width, this.canvas2.height);
