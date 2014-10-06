@@ -358,6 +358,7 @@ DrawingBoard.Board.prototype = {
 		};
         img.crossOrigin = 'Anonymous';
 		img.src = src;
+        this.initStage();
 	},
 
 	getImg: function() {
