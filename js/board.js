@@ -55,13 +55,7 @@ DrawingBoard.Board = function(id, opts) {
     this.startY;
     this.isDown = false;
 
-    this.stage = new createjs.Stage(this.canvas);
-    this.stage.autoClear = false;
-    this.shape=null;
-
-    this.stage2 = new createjs.Stage(this.canvas2);
-    this.stage2.autoClear = true;
-    this.shape2=null;
+    this.initStage();
 
 	if (!this.ctx) {
 		if (this.opts.errorMessage)
@@ -105,6 +99,15 @@ DrawingBoard.Board.defaultOpts = {
 
 DrawingBoard.Board.prototype = {
 
+    initStage: function(){
+        this.stage = new createjs.Stage(this.canvas);
+        this.stage.autoClear = false;
+        this.shape=null;
+        this.stage2 = new createjs.Stage(this.canvas2);
+        this.stage2.autoClear = true;
+        this.shape2=null;
+    },
+
 	mergeOptions: function(opts) {
 		opts = $.extend({}, DrawingBoard.Board.defaultOpts, opts);
 		if (!opts.background && opts.eraserColor === "background")
@@ -131,8 +134,7 @@ DrawingBoard.Board.prototype = {
 			background: false
 		}, opts);
 
-        this.stage.clear();
-        this.stage2.clear();
+        this.initStage();
 
 		this.setMode('pencil', silent);
 
