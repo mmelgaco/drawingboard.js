@@ -55,6 +55,14 @@ DrawingBoard.Board = function(id, opts) {
     this.startY;
     this.isDown = false;
 
+    this.stage = new createjs.Stage(this.canvas);
+    this.stage.autoClear = false;
+    this.shape=null;
+
+    this.stage2 = new createjs.Stage(this.canvas2);
+    this.stage2.autoClear = true;
+    this.shape2=null;
+
 	if (!this.ctx) {
 		if (this.opts.errorMessage)
 			this.$el.html(this.opts.errorMessage);
@@ -122,6 +130,9 @@ DrawingBoard.Board.prototype = {
 			history: true,
 			background: false
 		}, opts);
+
+        this.stage.clear();
+        this.stage2.clear();
 
 		this.setMode('pencil', silent);
 
@@ -495,11 +506,17 @@ DrawingBoard.Board.prototype = {
         this.ev.trigger('board:textnow', e.coords.x, e.coords.y, text);
     },
 
-    textwrite: function(x, y, text){
-        this.ctx.font = this.ctx.lineWidth+'px Verdana';
-        this.ctx.fillStyle = this.color;
-        this.ctx.fillText(text, x, y);
-        this.ctx.save();
+    textwrite: function(x,y,text){
+
+        var txt = new createjs.Text(text, this.ctx.lineWidth+'px Verdana', this.color);
+        txt.x = x;
+        txt.y = y;
+        //txt.rotation = 20;
+        //txt.outline = true;
+        this.stage.addChild(txt);
+
+        this.stage.update();
+
     },
 
     toggleControls: function(show){
@@ -508,6 +525,25 @@ DrawingBoard.Board.prototype = {
 
     isDisabled: function(){
         return this.dom.$controls.hasClass('drawing-board-controls-hidden');
+    },
+
+    mark: function(startX, startY, x, y, silent){
+        silent = silent || false;
+        if(!this.isDisabled()) {
+            this.stage2.clear();
+            this.shape = new createjs.Shape();
+            this.shape.x = startX;
+            this.shape.y = startY;
+            this.stage.addChildAt(this.shape,0);
+            this.shape.graphics.beginFill(this.color).drawRect(-10, -10, x-startX, y-startY);
+            this.stage.update();
+        }
+        if (!silent) this.ev.trigger('board:mark', {startX: startX, startY: startY, x: x, y: y});
+    },
+
+    markTemp: function(e){
+        this.shape2.graphics.clear().beginStroke(this.color).drawRect(-10, -10, e.coords.x-this.startX, e.coords.y-this.startY);
+        this.stage2.update();
     },
 
     fill: function(e, silent) {
@@ -697,7 +733,17 @@ DrawingBoard.Board.prototype = {
         //elipse
         this.startX = coords.x;
         this.startY = coords.y;
-        this.isDown = true;
+        if(this.getMode()!='text' && this.getMode()!='filler') {
+            this.isDown = true;
+        }
+
+        //mark
+        if(this.getMode()=='mark'){
+            this.shape2 = new createjs.Shape();
+            this.shape2.x = this.startX;
+            this.shape2.y = this.startY;
+            this.stage2.addChildAt(this.shape2,0);
+        }
 
 		if (!window.requestAnimationFrame) this.draw();
 
@@ -717,6 +763,13 @@ DrawingBoard.Board.prototype = {
             this.drawOval(coords.x, coords.y, false);
         }
 
+        //mark
+        if (this.getMode()=='mark' && !this.isDown) {
+            return;
+        } else if (this.getMode()=='mark' && this.isDown) {
+            this.markTemp({e: e, coords: coords});
+        }
+
 		if (!window.requestAnimationFrame) this.draw();
 
 		e.stopPropagation();
@@ -731,6 +784,14 @@ DrawingBoard.Board.prototype = {
         } else if (this.getMode()=='elipse' && this.isDown) {
             this.drawOval(coords.x, coords.y, true);
         }
+
+        //mark
+        if(this.getMode()=='mark' && !this.isDown){
+            return;
+        }else if(this.getMode()=='mark' && this.isDown){
+            this.mark(this.startX, this.startY, coords.x, coords.y, false);
+        }
+
         e.preventDefault();
         e.stopPropagation();
         this.isDown = false;
