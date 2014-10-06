@@ -1,4 +1,4 @@
-/* drawingboard.js v0.4.24 - https://github.com/Leimi/drawingboard.js
+/* drawingboard.js v0.4.25 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2014 Emmanuel Pelletier
 * Licensed MIT */
 window.DrawingBoard = typeof DrawingBoard !== "undefined" ? DrawingBoard : {};
@@ -701,17 +701,20 @@ DrawingBoard.Board.prototype = {
     },
 
     mark: function(startX, startY, x, y, silent){
+        if(this.isDisabled()) return;
         silent = silent || false;
-        if(!this.isDisabled()) {
-            this.stage2.clear();
-            this.shape = new createjs.Shape();
-            this.shape.x = startX;
-            this.shape.y = startY;
-            this.stage.addChildAt(this.shape,0);
-            this.shape.graphics.beginFill(this.color).drawRect(-10, -10, x-startX, y-startY);
-            this.stage.update();
-        }
+        this.markNow(startX, startY, x, y);
         if (!silent) this.ev.trigger('board:mark', {startX: startX, startY: startY, x: x, y: y});
+    },
+
+    markNow: function(startX, startY, x, y){
+        this.stage2.clear();
+        this.shape = new createjs.Shape();
+        this.shape.x = startX;
+        this.shape.y = startY;
+        this.stage.addChildAt(this.shape,0);
+        this.shape.graphics.beginFill(this.color).drawRect(-10, -10, x-startX, y-startY);
+        this.stage.update();
     },
 
     markTemp: function(e){
