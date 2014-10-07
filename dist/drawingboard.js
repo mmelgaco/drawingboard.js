@@ -1,4 +1,4 @@
-/* drawingboard.js v0.4.25 - https://github.com/Leimi/drawingboard.js
+/* drawingboard.js v0.4.26 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2014 Emmanuel Pelletier
 * Licensed MIT */
 window.DrawingBoard = typeof DrawingBoard !== "undefined" ? DrawingBoard : {};
@@ -650,9 +650,21 @@ DrawingBoard.Board.prototype = {
 		return this.mode || "pencil";
 	},
 
-    setSize: function(size){
+    setSize: function(size,silent){
+        silent = silent || false;
         this.ctx.lineWidth = size;
         this.dom.$controls.find('.drawing-board-control-size-range-input').val(size);
+        $('.drawing-board-control.drawing-board-control-size').find('.drawing-board-control-size-dropdown-current span').css({
+            width: size + 'px',
+            height: size + 'px',
+            borderRadius: size + 'px',
+            marginLeft: -1*size/2 + 'px',
+            marginTop: -1*size/2 + 'px'
+        });
+        this.dom.$controls.find('.drawing-board-control-size .drawing-board-control-inner').attr('title', size);
+        DrawingBoard.Control.Size.val = size;
+        if(!silent)
+            this.ev.trigger('size:changed', size);
     },
 
 	setColor: function(color) {
@@ -1202,8 +1214,8 @@ DrawingBoard.Control.DrawingMode = DrawingBoard.Control.extend({
 			var value = $(e.currentTarget).attr('data-mode');
 			var mode = this.board.getMode();
 			if (mode !== value) this.prevMode = mode;
-			var newMode = mode === value ? this.prevMode : value;
-			this.board.setMode( newMode );
+			//var newMode = mode === value ? this.prevMode : value;
+			this.board.setMode( value );
 			e.preventDefault();
 		}, this));
 

@@ -25,8 +25,8 @@ DrawingBoard.Control.DrawingMode = DrawingBoard.Control.extend({
 			var value = $(e.currentTarget).attr('data-mode');
 			var mode = this.board.getMode();
 			if (mode !== value) this.prevMode = mode;
-			var newMode = mode === value ? this.prevMode : value;
-			this.board.setMode( newMode );
+			//var newMode = mode === value ? this.prevMode : value;
+			this.board.setMode( value );
 			e.preventDefault();
 		}, this));
 
