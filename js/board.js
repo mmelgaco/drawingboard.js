@@ -25,7 +25,7 @@ DrawingBoard.Board = function(id, opts) {
 	if (!this.$el.length)
 		return false;
 
-	var tpl = '<div class="drawing-board-canvas-wrapper"></canvas><canvas class="drawing-board-canvas"></canvas><canvas id="canvas2" width="698" height="359" class="drawing-board-canvas"><div class="drawing-board-cursor drawing-board-utils-hidden"></div></div>';
+	var tpl = '<div class="drawing-board-canvas-wrapper"></canvas><canvas class="drawing-board-canvas"></canvas><canvas id="canvas2" class="drawing-board-canvas"><div class="drawing-board-cursor drawing-board-utils-hidden"></div></div>';
 	if (this.opts.controlsPosition.indexOf("bottom") > -1) tpl += '<div class="drawing-board-controls"></div>';
 	else tpl = '<div class="drawing-board-controls"></div>' + tpl;
 
