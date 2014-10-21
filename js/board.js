@@ -514,6 +514,10 @@ DrawingBoard.Board.prototype = {
 			this.ctx.strokeStyle = this.color;
 	},
 
+    getColor: function(){
+        return this.color;
+    },
+
     text: function(e, silent){
         if(this.isDisabled()) return;
         var text = prompt('Digite o texto: ') || '';

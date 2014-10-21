@@ -1,4 +1,4 @@
-/* drawingboard.js v0.4.27 - https://github.com/Leimi/drawingboard.js
+/* drawingboard.js v0.4.28 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2014 Emmanuel Pelletier
 * Licensed MIT */
 window.DrawingBoard = typeof DrawingBoard !== "undefined" ? DrawingBoard : {};
@@ -683,6 +683,10 @@ DrawingBoard.Board.prototype = {
 		} else
 			this.ctx.strokeStyle = this.color;
 	},
+
+    getColor: function(){
+        return this.color;
+    },
 
     text: function(e, silent){
         if(this.isDisabled()) return;
