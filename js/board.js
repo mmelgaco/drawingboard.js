@@ -337,29 +337,32 @@ DrawingBoard.Board.prototype = {
 	 * Image methods: you can directly put an image on the canvas, get it in base64 data url or start a download
 	 */
 
-	setImg: function(src, resize) {
-		var ctx = this.ctx;
-		var img = new Image();
-		var oldGCO = ctx.globalCompositeOperation;
+    setImg: function(src, resize) {
+        var ctx = this.ctx;
+        var img = new Image();
+        img.src = "";
+        var oldGCO = ctx.globalCompositeOperation;
         var obj = this;
-		img.onload = function() {
-			ctx.globalCompositeOperation = "source-over";
-			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.width);
+        img.addEventListener("load", function() {
+            ctx.globalCompositeOperation = "source-over";
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.width);
             if(resize) {
                 ctx.drawImage(img, 0, 0, ctx.canvas.width, ctx.canvas.height);
             }else{
                 ctx.drawImage(img, 0, 0);
             }
-			ctx.globalCompositeOperation = oldGCO;
+            ctx.globalCompositeOperation = oldGCO;
 
             //save the image in the history
             obj.saveWebStorage();
             obj.saveHistory();
-		};
-        img.crossOrigin = 'Anonymous';
-		img.src = src;
+        }, false);
+        if(src.indexOf('base64')==-1) {
+            img.crossOrigin = 'Anonymous';
+        }
+        img.src = src;
         this.initStage();
-	},
+    },
 
 	getImg: function() {
 		return this.canvas.toDataURL("image/png");
