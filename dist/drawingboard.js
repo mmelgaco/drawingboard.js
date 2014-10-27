@@ -1,4 +1,4 @@
-/* drawingboard.js v0.4.30 - https://github.com/Leimi/drawingboard.js
+/* drawingboard.js v0.4.31 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2014 Emmanuel Pelletier
 * Licensed MIT */
 window.DrawingBoard = typeof DrawingBoard !== "undefined" ? DrawingBoard : {};
@@ -483,7 +483,7 @@ DrawingBoard.Board.prototype = {
 		var pos = goForth ? this.history.position+1 : this.history.position-1;
 		if (this.history.values.length && this.history.values[pos-1] !== undefined) {
 			this.history.position = pos;
-			this.setImg(this.history.values[pos-1]);
+			this.setImg(this.history.values[pos-1], false, true);
 		}
 		this.ev.trigger('historyNavigation', pos);
 		this.saveWebStorage();
@@ -491,7 +491,7 @@ DrawingBoard.Board.prototype = {
 
     goToHistoryPosition: function(pos){
         this.history.position = pos;
-        this.setImg(this.history.values[pos-1]);
+        this.setImg(this.history.values[pos-1], false, true);
     },
 
 	goBackInHistory: function() {
@@ -508,7 +508,7 @@ DrawingBoard.Board.prototype = {
 	 * Image methods: you can directly put an image on the canvas, get it in base64 data url or start a download
 	 */
 
-    setImg: function(src, resize) {
+    setImg: function(src, resize, dontSaveHistory) {
         var ctx = this.ctx;
         var img = new Image();
         img.src = "";
@@ -524,9 +524,11 @@ DrawingBoard.Board.prototype = {
             }
             ctx.globalCompositeOperation = oldGCO;
 
-            //save the image in the history
-            obj.saveWebStorage();
-            obj.saveHistory();
+            if(!dontSaveHistory) {
+                //save the image in the history
+                obj.saveWebStorage();
+                obj.saveHistory();
+            }
         }, false);
         if(src.indexOf('base64')==-1) {
             img.crossOrigin = 'Anonymous';
