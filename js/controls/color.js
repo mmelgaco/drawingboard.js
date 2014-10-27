@@ -60,7 +60,7 @@ DrawingBoard.Control.Color = DrawingBoard.Control.extend({
 	},
 
 	onBoardReset: function(opts) {
-		this.board.setColor(this.$el.find('.drawing-board-control-colors-current').attr('data-color'));
+		//this.board.setColor(this.$el.find('.drawing-board-control-colors-current').attr('data-color'));
 	},
 
 	_rgba: function(r, g, b, a) {

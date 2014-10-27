@@ -89,6 +89,7 @@ DrawingBoard.Board.defaultOpts = {
 	background: "#fff",
 	eraserColor: "background",
 	fillTolerance: 100,
+    fillHack: true, //try to prevent issues with anti-aliasing with a little hack by default
 	webStorage: 'session',
 	droppable: false,
 	enlargeYourContainer: false,
@@ -515,6 +516,10 @@ DrawingBoard.Board.prototype = {
 			this.ev.bind('board:mode', setStrokeStyle);
 		} else
 			this.ctx.strokeStyle = this.color;
+
+        $('.drawing-board-control-colors-current')
+            .css('background-color', color)
+            .data('color', color);
 	},
 
     getColor: function(){
@@ -583,61 +588,59 @@ DrawingBoard.Board.prototype = {
     fillnow: function(e, silent) {
         silent = silent || false;
 
-		if (this.getImg() === this.blankCanvas) {
-			this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.width);
-			this.ctx.fillStyle = this.color;
-			this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-			return;
-		}
-
-		var img = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-
-		// constants identifying pixels components
-		var INDEX = 0, X = 1, Y = 2, COLOR = 3;
-
-		// target color components
-		var stroke = this.ctx.strokeStyle;
-		var r = parseInt(stroke.substr(1, 2), 16);
-		var g = parseInt(stroke.substr(3, 2), 16);
-		var b = parseInt(stroke.substr(5, 2), 16);
-
-		// starting point
-		var start = DrawingBoard.Utils.pixelAt(img, parseInt(e.coords.x, 10), parseInt(e.coords.y, 10));
-		var startColor = start[COLOR];
-		var tolerance = this.opts.fillTolerance;
-
-		// no need to continue if starting and target colors are the same
-		if (DrawingBoard.Utils.compareColors(startColor, DrawingBoard.Utils.RGBToInt(r, g, b), tolerance))
-			return;
-
-		// pixels to evaluate
-		var queue = [start];
-
-		// loop vars
-		var pixel, x, y;
-		var maxX = img.width - 1;
-		var maxY = img.height - 1;
-
-		while ((pixel = queue.pop())) {
-			if (DrawingBoard.Utils.compareColors(pixel[COLOR], startColor, tolerance)) {
-				img.data[pixel[INDEX]] = r;
-				img.data[pixel[INDEX] + 1] = g;
-				img.data[pixel[INDEX] + 2] = b;
-				if (pixel[X] > 0) // west
-					queue.push(DrawingBoard.Utils.pixelAt(img, pixel[X] - 1, pixel[Y]));
-				if (pixel[X] < maxX) // east
-					queue.push(DrawingBoard.Utils.pixelAt(img, pixel[X] + 1, pixel[Y]));
-				if (pixel[Y] > 0) // north
-					queue.push(DrawingBoard.Utils.pixelAt(img, pixel[X], pixel[Y] - 1));
-				if (pixel[Y] < maxY) // south
-					queue.push(DrawingBoard.Utils.pixelAt(img, pixel[X], pixel[Y] + 1));
-			}
-		}
-
-		this.ctx.putImageData(img, 0, 0);
+        if (this.getImg() === this.blankCanvas) {
+            this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.width);
+            this.ctx.fillStyle = this.color;
+            this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+            return;
+        }
+        var img = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+        // constants identifying pixels components
+        var INDEX = 0, X = 1, Y = 2, COLOR = 3;
+        // target color components
+        var stroke = this.ctx.strokeStyle;
+        var r = parseInt(stroke.substr(1, 2), 16);
+        var g = parseInt(stroke.substr(3, 2), 16);
+        var b = parseInt(stroke.substr(5, 2), 16);
+        // starting point
+        var start = DrawingBoard.Utils.pixelAt(img, parseInt(e.coords.x, 10), parseInt(e.coords.y, 10));
+        var startColor = start[COLOR];
+        var tolerance = this.opts.fillTolerance;
+        var useHack = this.opts.fillHack; //see https://github.com/Leimi/drawingboard.js/pull/38
+        // no need to continue if starting and target colors are the same
+        if (DrawingBoard.Utils.compareColors(startColor, DrawingBoard.Utils.RGBToInt(r, g, b), tolerance))
+            return;
+        // pixels to evaluate
+        var queue = [start];
+        // loop vars
+        var pixel, x, y;
+        var maxX = img.width - 1;
+        var maxY = img.height - 1;
+        function updatePixelColor(pixel) {
+            img.data[pixel[INDEX]] = r;
+            img.data[pixel[INDEX] + 1] = g;
+            img.data[pixel[INDEX] + 2] = b;
+        }
+        while ((pixel = queue.pop())) {
+            if (useHack)
+                updatePixelColor(pixel);
+            if (DrawingBoard.Utils.compareColors(pixel[COLOR], startColor, tolerance)) {
+                if (!useHack)
+                    updatePixelColor(pixel);
+                if (pixel[X] > 0) // west
+                    queue.push(DrawingBoard.Utils.pixelAt(img, pixel[X] - 1, pixel[Y]));
+                if (pixel[X] < maxX) // east
+                    queue.push(DrawingBoard.Utils.pixelAt(img, pixel[X] + 1, pixel[Y]));
+                if (pixel[Y] > 0) // north
+                    queue.push(DrawingBoard.Utils.pixelAt(img, pixel[X], pixel[Y] - 1));
+                if (pixel[Y] < maxY) // south
+                    queue.push(DrawingBoard.Utils.pixelAt(img, pixel[X], pixel[Y] + 1));
+            }
+        }
+        this.ctx.putImageData(img, 0, 0);
 
         if (!silent) this.ev.trigger('board:fillnow', e);
-	},
+    },
 
 
 	/**
