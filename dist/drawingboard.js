@@ -1,4 +1,4 @@
-/* drawingboard.js v0.4.31 - https://github.com/Leimi/drawingboard.js
+/* drawingboard.js v0.4.32 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2014 Emmanuel Pelletier
 * Licensed MIT */
 window.DrawingBoard = typeof DrawingBoard !== "undefined" ? DrawingBoard : {};
@@ -195,7 +195,7 @@ DrawingBoard.Board = function(id, opts) {
 	if (!this.$el.length)
 		return false;
 
-	var tpl = '<div class="drawing-board-canvas-wrapper"></canvas><canvas class="drawing-board-canvas"></canvas><canvas id="canvas2" class="drawing-board-canvas"><div class="drawing-board-cursor drawing-board-utils-hidden"></div></div>';
+	var tpl = '<div class="drawing-board-canvas-wrapper"></canvas><canvas class="drawing-board-canvas"></canvas><canvas id="canvas2" class="drawing-board-canvas"><div class="drawing-board-cursor drawing-board-utils-hidden"></div></div><canvas id="canvas3" style="display:none;">';
 	if (this.opts.controlsPosition.indexOf("bottom") > -1) tpl += '<div class="drawing-board-controls"></div>';
 	else tpl = '<div class="drawing-board-controls"></div>' + tpl;
 
@@ -204,6 +204,7 @@ DrawingBoard.Board = function(id, opts) {
 		$canvasWrapper: this.$el.find('.drawing-board-canvas-wrapper'),
 		$canvas: this.$el.find('.drawing-board-canvas'),
         $canvas2: this.$el.find('#canvas2'),
+        $canvas3: this.$el.find('#canvas3'),
 		$cursor: this.$el.find('.drawing-board-cursor'),
 		$controls: this.$el.find('.drawing-board-controls')
 	};
@@ -224,6 +225,9 @@ DrawingBoard.Board = function(id, opts) {
     this.startX;
     this.startY;
     this.isDown = false;
+
+    this.canvas3 = this.dom.$canvas3.get(0);
+    this.ctx3 = this.canvas3 && this.canvas3.getContext && this.canvas3.getContext('2d') ? this.canvas3.getContext('2d') : null;
 
     this.initStage();
 
@@ -395,6 +399,12 @@ DrawingBoard.Board.prototype = {
 
         this.canvas2.width = canvasWidth;
         this.canvas2.height = canvasHeight;
+
+        this.dom.$canvas3.css('width', canvasWidth + 'px');
+        this.dom.$canvas3.css('height', canvasHeight + 'px');
+
+        this.canvas3.width = canvasWidth;
+        this.canvas3.height = canvasHeight;
 	},
 
 
@@ -507,20 +517,39 @@ DrawingBoard.Board.prototype = {
 	/**
 	 * Image methods: you can directly put an image on the canvas, get it in base64 data url or start a download
 	 */
-
     setImg: function(src, resize, dontSaveHistory) {
         var ctx = this.ctx;
+        var ctx3 = this.ctx3
+        var canvas3 = this.canvas3;
         var img = new Image();
         img.src = "";
         var oldGCO = ctx.globalCompositeOperation;
         var obj = this;
         img.addEventListener("load", function() {
+            //alert('canvas width X height: '+ctx.canvas.width+'x'+ctx.canvas.height + ' / img width X height: ' + this.width + 'x' + this.height);
             ctx.globalCompositeOperation = "source-over";
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.width);
             if(resize) {
-                ctx.drawImage(img, 0, 0, ctx.canvas.width, ctx.canvas.height);
+                var diff = ctx3.canvas.width - this.width;
+                if(diff>0 && (ctx3.canvas.width!=ctx.canvas.width || ctx3.canvas.height!=ctx.canvas.height)){
+                    ctx3.globalCompositeOperation = "source-over";
+                    ctx3.clearRect(0, 0, ctx3.canvas.width, ctx3.canvas.width);
+                    ctx3.drawImage(img, diff/2, 0);
+                    img = new Image();
+                    img.src = canvas3.toDataURL("image/png");
+                    img.addEventListener("load", function() {
+                        ctx.drawImage(img, 0, 0, ctx.canvas.width, ctx.canvas.height);
+                    }, false);
+                }else {
+                    ctx.drawImage(img, 0, 0, ctx.canvas.width, ctx.canvas.height);
+                }
             }else{
-                ctx.drawImage(img, 0, 0);
+                var diff = ctx.canvas.width - this.width;
+                if(diff>0){
+                    ctx.drawImage(img, diff/2, 0);
+                }else {
+                    ctx.drawImage(img, 0, 0);
+                }
             }
             ctx.globalCompositeOperation = oldGCO;
 
