@@ -1,9 +1,9 @@
 {
 	"name": "drawingboard.js",
-	"version": "0.4.32",
+	"version": "0.4.33",
 	"main": ["dist/drawingboard.js", "dist/drawingboard.css"],
 	"dependencies": {
 		"jquery": "*",
-        "EaselJS": "*"
+        "EaselJS": "0.7.1"
 	}
 }
